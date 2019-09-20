@@ -2,15 +2,15 @@
   "name": "ophost",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js"
   },
   "author": "ozgend",
   "license": "ISC",
   "dependencies": {
     "express": "^4.16.4",
-    "mdns-js": "^1.0.3"
+    "local-devices": "^2.0.0"
   },
   "devDependencies": {
     "eslint": "^5.15.3",
