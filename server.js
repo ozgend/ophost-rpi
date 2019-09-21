@@ -1,11 +1,12 @@
 'use strict';
 
-const networkDevices = require('local-devices');
-const express = require('express');
 const port = 3000;
+const express = require('express');
+const DiscoveryService = require('./discovery-service');
+const _discoveryService = new DiscoveryService();
 
 let devices = [];
-let networkScannerPid;
+let discoveryWorkerPid;
 
 const intercept = function (req, res, next) {
     console.log(`-- ${req.path}`);
@@ -27,13 +28,18 @@ app.get('/', (req, res) => {
     res.type('html').send(list);
 });
 
-app.get('/scan/start', async (req, res) => {
-    startScan();
+app.get('/discover', async (req, res) => {
+    devices = await _discoveryService.discover();
+    res.send(devices);
+});
+
+app.get('/discovery/start', async (req, res) => {
+    startDiscoveryWorker();
     res.sendStatus(200);
 });
 
-app.get('/scan/end', async (req, res) => {
-    endScan();
+app.get('/discovery/end', async (req, res) => {
+    endDiscoveryWorker();
     res.send(devices);
 });
 
@@ -58,24 +64,20 @@ app.get('/favicon.ico', (req, res) => res.status(204));
 
 app.listen(port, () => console.log(`ophost started on ${port}!`));
 
-const networkScanner = async () => {
-    const list = await networkDevices();
-    devices = list.map(device => {
-        device.id = device.mac.replace(/:/g, '_');
-        return device;
-    });
+const discoveryWorker = async () => {
+    devices = await _discoveryService.discover();
     console.debug(`discovered ${devices.length} devices`);
 };
 
-const startScan = () => {
-    if (!networkScannerPid) {
-        networkScannerPid = setInterval(networkScanner, 3000);
+const startDiscoveryWorker = () => {
+    if (!discoveryWorkerPid) {
+        discoveryWorkerPid = setInterval(discoveryWorker, 3000);
     }
 };
 
-const endScan = () => {
-    if (networkScannerPid) {
-        clearInterval(networkScannerPid);
-        networkScannerPid = undefined;
+const endDiscoveryWorker = () => {
+    if (discoveryWorkerPid) {
+        clearInterval(discoveryWorkerPid);
+        discoveryWorkerPid = undefined;
     }
 };

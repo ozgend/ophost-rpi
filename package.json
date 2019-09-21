@@ -9,8 +9,7 @@
   "author": "ozgend",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.16.4",
-    "local-devices": "^2.0.0"
+    "express": "^4.16.4"
   },
   "devDependencies": {
     "eslint": "^5.15.3",
