@@ -39,7 +39,7 @@ class DiscoveryService {
                 return d.length === 1 ? `0${d}` : d;
             }).join(':');
 
-            const id = mac.replace(':', '');
+            const id = mac.replace(/:/g, '');
 
             clients.push({ ip, mac, id });
         });
