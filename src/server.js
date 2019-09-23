@@ -66,7 +66,7 @@ app.get('/devices/:id/:action/:args', async (req, res) => {
         res.sendStatus(404);
         return;
     }
-    const action = Builder.buildAction('switch', req.params.args);
+    const action = Builder.buildAction(req.params.action, req.params.args);
     const result = await _opClient.forwardAction(device, action);
     res.send({ id: req.params.id, action: req.params.action, args: req.params.args, result });
 });

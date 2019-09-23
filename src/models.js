@@ -46,7 +46,7 @@ class Builder {
         let action;
         switch (name) {
             case 'switch':
-                action = new Action('switch', { to: args });
+                action = new Action(name, { to: args });
                 break;
             default:
                 action = new Action(name, args);
