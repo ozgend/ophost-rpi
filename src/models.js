@@ -35,7 +35,7 @@ class Builder {
      * @param  {Action} action
      */
     static buildActionUrl(device, action) {
-        return `http://${device.ip}:80/${action.name}?=${this.getArgs()}`;
+        return `http://${device.ip}:80/${action.name}?=${action.getArgs()}`;
     }
     /**
      * @param  {string} name
