@@ -1,7 +1,6 @@
 'use strict';
 
-const util = require('util');
-const httpGetAsync = util.promisify(require('http').get);
+const fetch = require('node-fetch');
 // eslint-disable-next-line no-unused-vars
 const { Builder, Device, Action } = require('./models');
 
@@ -13,12 +12,19 @@ class OpClient {
     async forwardAction(device, action) {
         try {
             const url = Builder.buildActionUrl(device, action);
-            const response = await httpGetAsync(url);
-            console.log(response);
-            return response;
+            const response = await fetch(url);
+            if (response && response.ok) {
+                const result = await response.json();
+                return result;
+            }
+            else {
+                console.error(response);
+            }
+            return false;
         }
         catch (err) {
             console.error(err);
+            return false;
         }
     }
 }

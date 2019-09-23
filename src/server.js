@@ -61,10 +61,14 @@ app.get('/devices/:id', async (req, res) => {
 
 app.get('/devices/:id/:action/:args', async (req, res) => {
     // forward action request to op-client....
-    const device = _discoveryService.find(req.params.id);
-    const action = Builder.buildAction(req.params.action, req.params.args);
+    const device = await _discoveryService.find(req.params.id);
+    if (!device) {
+        res.sendStatus(404);
+        return;
+    }
+    const action = Builder.buildAction('switch', req.params.args);
     const result = await _opClient.forwardAction(device, action);
-    res.send({ id: req.params.id, action: req.params.action, args: req.param.args, result });
+    res.send({ id: req.params.id, action: req.params.action, args: req.params.args, result });
 });
 
 app.get('/favicon.ico', (req, res) => res.status(204));

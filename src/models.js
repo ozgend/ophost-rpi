@@ -17,15 +17,11 @@ class Device {
 class Action {
     /**
      * @param  {string} name
-     * @param  {any[]} args
+     * @param  {object} args
      */
     constructor(name, args) {
         this.name = name;
         this.args = args;
-    }
-
-    getArgs() {
-        return this.args.join(',');
     }
 }
 
@@ -35,14 +31,28 @@ class Builder {
      * @param  {Action} action
      */
     static buildActionUrl(device, action) {
-        return `http://${device.ip}:80/${action.name}?=${action.getArgs()}`;
+        const keys = Object.keys(action.args);
+        const pairs = keys.map(key => {
+            return `${key}=${action.args[key]}`;
+        });
+        const urlParameters = pairs.join('&');
+        return `http://${device.ip}:80/${action.name}?${urlParameters}`;
     }
     /**
      * @param  {string} name
-     * @param  {string} csvArgs
+     * @param  {object} args
      */
-    static buildAction(name, csvArgs) {
-        return new Action(name, csvArgs.split(';'));
+    static buildAction(name, args) {
+        let action;
+        switch (name) {
+            case 'switch':
+                action = new Action('switch', { to: args });
+                break;
+            default:
+                action = new Action(name, args);
+        }
+
+        return action;
     }
 
     /**
