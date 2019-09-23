@@ -11,10 +11,15 @@ class OpClient {
      * @param  {Action} action
      */
     async forwardAction(device, action) {
-        const url = Builder.buildActionUrl(device, action);
-        const response = await httpGetAsync(url);
-        console.log(response);
-        return response;
+        try {
+            const url = Builder.buildActionUrl(device, action);
+            const response = await httpGetAsync(url);
+            console.log(response);
+            return response;
+        }
+        catch (err) {
+            console.error(err);
+        }
     }
 }
 
