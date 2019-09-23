@@ -49,6 +49,22 @@ app.get('/discovery/end', async (req, res) => {
 
 app.get('/devices', (req, res) => res.send(_devices));
 
+app.get('/device-actions', async (req, res) => {
+    _devices = await _discoveryService.discover();
+    const actionUrls = _devices.map(d => {
+        return {
+            id: d.id,
+            to1: Builder.buildActionUrl(d, Builder.buildAction('switch', 1)),
+            to0: Builder.buildActionUrl(d, Builder.buildAction('switch', 0))
+        };
+    });
+
+    const html = actionUrls.map(url => {
+        return `<li>${url.id} -> <a href="${url.to0}" target="_blank">TO_0</a> | <a href="${url.to1}" target="_blank">TO_1</a></li>`;
+    }).join('\n');
+    res.type('html').send(html);
+});
+
 app.get('/devices/:id', async (req, res) => {
     const device = await _discoveryService.find(req.params.id);
     if (device) {
