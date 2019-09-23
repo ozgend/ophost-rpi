@@ -54,8 +54,8 @@ app.get('/device-actions', async (req, res) => {
     const actionUrls = _devices.map(d => {
         return {
             id: d.id,
-            to1: Builder.buildActionUrl(d, Builder.buildAction('switch', 1)),
-            to0: Builder.buildActionUrl(d, Builder.buildAction('switch', 0))
+            to1: `/devices/${d.id}/switch/1`,
+            to0: `/devices/${d.id}/switch/0`,
         };
     });
 
