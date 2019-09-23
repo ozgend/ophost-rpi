@@ -3,9 +3,13 @@
 const port = 3000;
 const express = require('express');
 const DiscoveryService = require('./discovery-service');
-const _discoveryService = new DiscoveryService();
+const OpClient = require('./op-client');
+const { Builder } = require('./models');
 
-let devices = [];
+const _discoveryService = new DiscoveryService();
+const _opClient = new OpClient();
+
+let _devices = [];
 let discoveryWorkerPid;
 
 const intercept = function (req, res, next) {
@@ -29,8 +33,8 @@ app.get('/', (req, res) => {
 });
 
 app.get('/discover', async (req, res) => {
-    devices = await _discoveryService.discover();
-    res.send(devices);
+    _devices = await _discoveryService.discover();
+    res.send(_devices);
 });
 
 app.get('/discovery/start', async (req, res) => {
@@ -40,13 +44,13 @@ app.get('/discovery/start', async (req, res) => {
 
 app.get('/discovery/end', async (req, res) => {
     endDiscoveryWorker();
-    res.send(devices);
+    res.send(_devices);
 });
 
-app.get('/devices', (req, res) => res.send(devices));
+app.get('/devices', (req, res) => res.send(_devices));
 
-app.get('/devices/:id', (req, res) => {
-    const device = devices.find(d => d.id === req.params.id);
+app.get('/devices/:id', async (req, res) => {
+    const device = await _discoveryService.find(req.params.id);
     if (device) {
         res.send(device);
     }
@@ -55,9 +59,12 @@ app.get('/devices/:id', (req, res) => {
     }
 });
 
-app.get('/devices/:id/:action/:args', (req, res) => {
+app.get('/devices/:id/:action/:args', async (req, res) => {
     // forward action request to op-client....
-    res.send({ ok: true, id: req.params.id, action: req.params.action, args: req.param.args });
+    const device = _discoveryService.find(req.params.id);
+    const action = Builder.buildAction(req.params.action, req.params.args);
+    const result = await _opClient.forwardAction(device, action);
+    res.send({ id: req.params.id, action: req.params.action, args: req.param.args, result });
 });
 
 app.get('/favicon.ico', (req, res) => res.status(204));
@@ -65,8 +72,8 @@ app.get('/favicon.ico', (req, res) => res.status(204));
 app.listen(port, () => console.log(`ophost started on ${port}!`));
 
 const discoveryWorker = async () => {
-    devices = await _discoveryService.discover();
-    console.debug(`discovered ${devices.length} devices`);
+    _devices = await _discoveryService.discover();
+    console.debug(`discovered ${_devices.length} devices`);
 };
 
 const startDiscoveryWorker = () => {

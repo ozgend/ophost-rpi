@@ -2,6 +2,8 @@
 
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
+// eslint-disable-next-line no-unused-vars
+const { Builder, Device } = require('./models');
 
 const RX_IP = /(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/gi;
 const RX_MAC = /([0-9a-f]{1,2}:[0-9a-f]{1,2}:[0-9a-f]{1,2}:[0-9a-f]{1,2}:[0-9a-f]{1,2}:[0-9a-f]{1,2})/gi;
@@ -9,9 +11,10 @@ const RX_MAC = /([0-9a-f]{1,2}:[0-9a-f]{1,2}:[0-9a-f]{1,2}:[0-9a-f]{1,2}:[0-9a-f
 class DiscoveryService {
     constructor(options) {
         this._options = options || {};
-        this._timer;
     }
-
+    /**
+     * @returns {Device[]} 
+     */
     async discover() {
         let args = ['arp', '-a'];
         if (this._options.interface) {
@@ -24,7 +27,7 @@ class DiscoveryService {
         }
 
         const rows = stdout.split('\n');
-        const clients = [];
+        const devices = [];
 
         rows.forEach(row => {
             const ipMatch = row.match(RX_IP);
@@ -39,12 +42,19 @@ class DiscoveryService {
                 return d.length === 1 ? `0${d}` : d;
             }).join(':');
 
-            const id = mac.replace(/:/g, '');
-
-            clients.push({ ip, mac, id });
+            devices.push(Builder.buildDevice(ip, mac));
         });
 
-        return clients;
+        return devices;
+    }
+    /**
+     * @param  {string} id
+     * @returns {Device}
+     */
+    async find(id) {
+        const devices = await this.discover();
+        const device = devices.find(d => d.id === id);
+        return device;
     }
 };
 
