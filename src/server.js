@@ -13,7 +13,7 @@ let _devices = [];
 let discoveryWorkerPid;
 
 const intercept = function (req, res, next) {
-    console.log(`-- ${req.path}`);
+    // console.log(`-- ${req.path}`);
     next();
 };
 
