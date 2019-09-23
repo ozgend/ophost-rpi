@@ -3,14 +3,17 @@
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 // eslint-disable-next-line no-unused-vars
-const { Builder, Device } = require('./models');
+const { Builder, Device, DiscoveryOptions } = require('./models');
 
 const RX_IP = /(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/gi;
 const RX_MAC = /([0-9a-f]{1,2}:[0-9a-f]{1,2}:[0-9a-f]{1,2}:[0-9a-f]{1,2}:[0-9a-f]{1,2}:[0-9a-f]{1,2})/gi;
 
 class DiscoveryService {
+    /**
+     * @param  {DiscoveryOptions} options
+     */
     constructor(options) {
-        this._options = options || {};
+        this._options = options || new DiscoveryOptions();
     }
     /**
      * @returns {Device[]} 

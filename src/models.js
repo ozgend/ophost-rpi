@@ -64,4 +64,10 @@ class Builder {
     }
 }
 
-module.exports = { Device, Action, Builder };
+class DiscoveryOptions {
+    constructor() {
+        this.interface = undefined;
+    }
+}
+
+module.exports = { DiscoveryOptions, Device, Action, Builder };
