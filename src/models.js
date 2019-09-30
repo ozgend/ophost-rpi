@@ -70,4 +70,20 @@ class DiscoveryOptions {
     }
 }
 
-module.exports = { DiscoveryOptions, Device, Action, Builder };
+class PubSubOptions {
+    constructor() {
+        this.host = '';
+        /** @type {PubSubEvent[]} **/
+        this.events = [];
+    }
+}
+
+class PubSubEvent {
+    constructor() {
+        this.topic = '';
+        this.handler = async () => { }
+    }
+}
+
+
+module.exports = { DiscoveryOptions, Device, Action, Builder, PubSubEvent, PubSubOptions };
